@@ -1,100 +1,74 @@
 // To parse this JSON data, do
 //
-//     final university = universityFromJson(jsonString);
+//     final countryModel = countryModelFromJson(jsonString);
 
 import 'dart:convert';
 
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_flutter/adapters.dart';
 
-part 'university_model.g.dart';
+List<CountryModel> countryModelFromJson(String str) => List<CountryModel>.from(
+    json.decode(str).map((x) => CountryModel.fromJson(x)));
 
-@HiveType(typeId: 0)
-class UniverResponse extends HiveObject {
-  @HiveField(0)
-  final String name;
-  @HiveField(1)
-  final List<University> univers;
-
-  UniverResponse({required this.univers, required this.name});
-
-  factory UniverResponse.fromJson({required dynamic data, required String name}) {
-    List<University> listOfUniver = [];
-    data.forEach((value) {
-      listOfUniver.add(University.fromJson(value));
-    });
-    return UniverResponse(univers: listOfUniver, name: name);
-  }
-}
-
-List<University> universityFromJson(String str) =>
-    List<University>.from(json.decode(str).map((x) => University.fromJson(x)));
-
-String universityToJson(List<University> data) =>
+String countryModelToJson(List<CountryModel> data) =>
     json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
-
 @HiveType(typeId: 1)
-class University extends HiveObject {
-  University({
+class CountryModelList extends HiveObject {
+  CountryModelList({this.countryList, this.name});
+  @HiveField(0)
+  List<CountryModel>? countryList;
+  @HiveField(1)
+  String? name;
+}
+
+@HiveType(typeId: 0)
+class CountryModel extends HiveObject {
+  CountryModel({
     this.domains,
-    this.country,
-    this.alphaTwoCode,
+    this.name,
     this.webPages,
     this.stateProvince,
-    this.name,
   });
 
   @HiveField(0)
   List<String>? domains;
   @HiveField(1)
-  String? country;
-  @HiveField(2)
-  String? alphaTwoCode;
-  @HiveField(3)
-  List<String>? webPages;
-  @HiveField(4)
-  dynamic stateProvince;
-  @HiveField(5)
   String? name;
+  @HiveField(2)
+  List<String>? webPages;
+  @HiveField(3)
+  dynamic stateProvince;
 
-  University copyWith({
+  CountryModel copyWith({
     List<String>? domains,
-    String? country,
-    String? alphaTwoCode,
+    String? name,
     List<String>? webPages,
     dynamic stateProvince,
-    String? name,
   }) =>
-      University(
+      CountryModel(
         domains: domains ?? this.domains,
-        country: country ?? this.country,
-        alphaTwoCode: alphaTwoCode ?? this.alphaTwoCode,
+        name: name ?? this.name,
         webPages: webPages ?? this.webPages,
         stateProvince: stateProvince ?? this.stateProvince,
-        name: name ?? this.name,
       );
 
-  factory University.fromJson(Map<String, dynamic> json) => University(
+  factory CountryModel.fromJson(Map<String, dynamic> json) => CountryModel(
         domains: json["domains"] == null
             ? []
-            : List<String>.from(json["domains"]!.map((x) => x)),
-        country: json["country"],
-        alphaTwoCode: json["alpha_two_code"],
+            : List<String>.from(json["domains"]?.map((x) => x)),
+        name: json["name"],
         webPages: json["web_pages"] == null
             ? []
-            : List<String>.from(json["web_pages"]!.map((x) => x)),
+            : List<String>.from(json["web_pages"]?.map((x) => x)),
         stateProvince: json["state-province"],
-        name: json["name"],
       );
 
   Map<String, dynamic> toJson() => {
         "domains":
             domains == null ? [] : List<dynamic>.from(domains!.map((x) => x)),
-        "country": country,
-        "alpha_two_code": alphaTwoCode,
+        "name": name,
         "web_pages":
             webPages == null ? [] : List<dynamic>.from(webPages!.map((x) => x)),
         "state-province": stateProvince,
-        "name": name,
       };
 }

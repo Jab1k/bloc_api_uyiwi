@@ -3,45 +3,20 @@ import 'package:bloc_api/view_univer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class UniversityHomePage extends StatefulWidget {
-  const UniversityHomePage({Key? key}) : super(key: key);
+class CountryPage extends StatefulWidget {
+  const CountryPage({Key? key}) : super(key: key);
 
   @override
-  State<UniversityHomePage> createState() => _UniversityHomePageState();
+  State<CountryPage> createState() => _CountryPageState();
 }
 
-class _UniversityHomePageState extends State<UniversityHomePage> {
+class _CountryPageState extends State<CountryPage> {
   final name = TextEditingController();
-
-  void _incrementCounter(BuildContext con) {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text("Name"),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(controller: name),
-              ],
-            ),
-            actions: [
-              ElevatedButton(
-                  onPressed: () async {
-                    Navigator.pop(context);
-                    con.read<UniversityCubit>().getInfo(name.text);
-                    name.clear();
-                  },
-                  child: const Text("Save"))
-            ],
-          );
-        });
-  }
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      context.read<UniversityCubit>().getLocal();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CountryCubit>().init();
     });
     super.initState();
   }
@@ -49,64 +24,55 @@ class _UniversityHomePageState extends State<UniversityHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Bloc && Hive"),
-      ),
-      body: BlocBuilder<UniversityCubit, UniversityState>(
+      appBar: AppBar(),
+      body: BlocBuilder<CountryCubit, CountryState>(
         builder: (context, state) {
-          return state.isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
-                  itemCount: state.university?.length ?? 0,
-                  itemBuilder: (context, index) {
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => ViewUniversPage(
-                                    data: state.university?[index])));
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.only(bottom: 10),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 16),
-                        decoration: BoxDecoration(
-                            color:
-                                Theme.of(context).primaryColor.withOpacity(0.3),
-                            borderRadius: BorderRadius.circular(14)),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              children: [
-                                Text(state.university?[index].name ?? ""),
-                                Text(state.university?[index].univers.length
-                                        .toString() ??
-                                    "0"),
-                              ],
-                            ),
-                            IconButton(
-                                onPressed: () {
-                                  context
-                                      .read<UniversityCubit>()
-                                      .deleteUniversity(index);
-                                },
-                                icon: const Icon(Icons.delete))
-                          ],
+          return ListView.builder(
+              itemCount: state.country?.length ?? 0,
+              itemBuilder: (context, index) {
+                return InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => InformationPage(
+                          countryModelList: state.country![index],
                         ),
                       ),
                     );
-                  });
+                  },
+                  child: Container(
+                    color: Colors.lightBlueAccent,
+                    padding: EdgeInsets.all(16),
+                    margin: EdgeInsets.all(8),
+                    child: Text(state.country?[index].name ?? ""),
+                  ),
+                );
+              });
         },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          _incrementCounter(context);
+          showDialog(
+              context: context,
+              builder: (con) {
+                return AlertDialog(
+                  title: TextFormField(
+                    controller: name,
+                  ),
+                  actions: [
+                    ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          context
+                              .read<CountryCubit>()
+                              .getInformation(name.text);
+                        },
+                        child: Text("Save"))
+                  ],
+                );
+              });
         },
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
       ),
     );
   }
